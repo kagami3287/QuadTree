@@ -30,11 +30,11 @@ namespace Common
 		~QTNNList();
 	public:
 		void SetRequestSize(unsigned int nReq);
-		void Push(QTPoint * p);
+		void Push(QTPoint p);
 		void Pop();
-		const QTPoint * top();
+		const QTPoint top();
 		int size();
-		void DeepCopy(vector<QTPoint*> &list);
+		void DeepCopy(vector<QTPoint> &list);
 	};
 } // namespace Common
 #endif

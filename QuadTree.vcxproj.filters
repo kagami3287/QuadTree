@@ -33,7 +33,7 @@
     <ClCompile Include="Quad.cpp">
       <Filter>DS</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Coding\QuadTree\Utils.cpp">
+    <ClCompile Include="Utils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,7 +50,7 @@
     <ClInclude Include="Quad.h">
       <Filter>DS</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Coding\QuadTree\Utils.h">
+    <ClInclude Include="Utils.h">
       <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>

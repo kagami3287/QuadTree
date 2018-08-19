@@ -32,8 +32,8 @@ namespace Common
 		static double m_sAtomSize;
 		static int m_sCapacity;
 
-		vector<QTPoint *> m_Points;
-		QTRegion * m_pRegion;
+		vector<QTPoint> m_Points;
+		QTRegion m_pRegion;
 		int m_nCurSize;
 		//Links to children
 	private:
@@ -44,37 +44,36 @@ namespace Common
 
 	public:
 		Quad();
-		Quad(QTRegion * pRegion);
+		Quad(QTRegion pRegion);
 		~Quad();
 		//Methods
 	private:
 		bool IsChildNull();
-		bool IsRegionNull();
 		bool IsRegionValid();
 		int GetCurSize();
-		bool IsInBoundary(QTPoint * p);
-		bool IsRegionClose(QTPoint *p, double distance);
-		QTRegion * GetTopLeftRegion();
-		QTRegion * GetTopRightRegion();
-		QTRegion * GetBottomLeftRegion();
-		QTRegion * GetBottomRightRegion();
+		bool IsInBoundary(QTPoint p);
+		bool IsRegionClose(QTPoint p, double distance);
+		QTRegion GetTopLeftRegion();
+		QTRegion GetTopRightRegion();
+		QTRegion GetBottomLeftRegion();
+		QTRegion GetBottomRightRegion();
 		bool CreateChildren();
-		bool InserttoChild(QTPoint * p);
-		void ProcessCurrentList(QTPoint * p, QTNNList*& pointList, vector<Quad*> &quadList, double & max);
-		void PopulateValidChildren(QTPoint * p, vector<Quad*> &quadList, double & max);
+		bool InserttoChild(QTPoint p);
+		void ProcessCurrentList(QTPoint p, QTNNList& pointList, vector<Quad*> &quadList, double & max);
+		void PopulateValidChildren(QTPoint p, vector<Quad*> &quadList, double & max);
 	public:
 		static void SetCapacity(int nCapacity);
 		static int GetCapacity();
 		static void SetAtomicSize(double dAtomicSize);
 		static double GetAtomicSize();
-		void SetRegion(QTRegion * pRegion);
-		QTRegion *GetRegion();
+		void SetRegion(QTRegion pRegion);
+		QTRegion GetRegion();
 		Quad * GetTopLeftChild();
 		Quad * GetTopRightChild();
 		Quad * GetBottomLeftChild();
 		Quad * GetBottomRightChild();
-		bool InsertPoint(QTPoint * p);
-		vector<QTPoint *> Search(QTPoint * p, int nNearestPoints);
+		bool InsertPoint(QTPoint p);
+		vector<QTPoint> Search(QTPoint p, int nNearestPoints);
 	};
 } // namespace Common
 

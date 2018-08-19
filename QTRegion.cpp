@@ -4,11 +4,11 @@ namespace Common
 {
 	QTRegion::QTRegion()
 	{
-		this->m_pStart = NULL;
-		this->m_pEnd = NULL;
+		this->m_pStart = QTPoint(-DBL_MAX, -DBL_MAX);
+		this->m_pEnd = QTPoint(-DBL_MAX, -DBL_MAX);
 	}
 
-	QTRegion::QTRegion(QTPoint *start, QTPoint *end)
+	QTRegion::QTRegion(QTPoint start, QTPoint end)
 	{
 		this->m_pStart = start;
 		this->m_pEnd = end;
@@ -16,68 +16,66 @@ namespace Common
 
 	QTRegion::~QTRegion()
 	{
-		delete m_pStart;
-		delete m_pEnd;
 	}
 
 	//Returns the Start point of the region.
-	QTPoint *QTRegion::GetRegionStart()
+	QTPoint QTRegion::GetRegionStart()
 	{
 		return this->m_pStart;
 	}
 
 	//Returns the End point of the region.
-	QTPoint *QTRegion::GetRegionEnd()
+	QTPoint QTRegion::GetRegionEnd()
 	{
 		return this->m_pEnd;
 	}
 
 	//Set the Start of the region.
-	void QTRegion::SetRegionStart(QTPoint *p)
+	void QTRegion::SetRegionStart(QTPoint p)
 	{
 		this->m_pStart = p;
 		CreateValidRegion();
 	}
 
 	//Set the End of the region.
-	void QTRegion::SetRegionEnd(QTPoint *p)
+	void QTRegion::SetRegionEnd(QTPoint p)
 	{
 		this->m_pEnd = p;
 		CreateValidRegion();
 	}
 
-	//Checks if the Starting point is Null.
-	bool QTRegion::IsStartNull()
+	//Checks if the Starting point is initialized.
+	bool QTRegion::IsStartInit()
 	{
-		return (this->m_pStart == NULL);
+		return !(this->m_pStart == QTPoint(-DBL_MAX, -DBL_MAX));
 	}
 
-	//Checks if the Ending point is Null.
-	bool QTRegion::IsEndNull()
+	//Checks if the Ending point is initialized.
+	bool QTRegion::IsEndInit()
 	{
-		return (this->m_pEnd == NULL);
+		return !(this->m_pEnd == QTPoint(-DBL_MAX, -DBL_MAX));
 	}
 
-	//Checks if any point is Null (Start | End).
-	bool QTRegion::IsPointsNull()
+	//Checks if any point not initialized (Start | End).
+	bool QTRegion::IsPointsInit()
 	{
-		return (IsStartNull() || IsEndNull());
+		return (IsStartInit() && IsEndInit());
 	}
 
 	//Checks if a point is in this region
 	//the area that is considered inside the region is [Start, End)
-	bool QTRegion::IsInRegion(QTPoint *p)
+	bool QTRegion::IsInRegion(QTPoint p)
 	{
 		bool bRet;
 
-		if (IsPointsNull())
+		if (!IsPointsInit())
 		{
 			bRet = false;
 		}
 		else
 		{
-			bool bXin = (this->m_pStart->x <= p->x) && (this->m_pEnd->x > p->x);
-			bool bYin = (this->m_pStart->y <= p->y) && (this->m_pEnd->y > p->y);
+			bool bXin = (this->m_pStart.x <= p.x) && (this->m_pEnd.x > p.x);
+			bool bYin = (this->m_pStart.y <= p.y) && (this->m_pEnd.y > p.y);
 
 			bRet = (bXin && bYin);
 		}
@@ -87,107 +85,100 @@ namespace Common
 	//Creates a valid region by oredering the x,y coordinates
 	void QTRegion::CreateValidRegion()
 	{
-		if (!IsPointsNull())
+		if (IsPointsInit())
 		{
-			if (m_pStart->x > m_pEnd->x)
+			if (m_pStart.x > m_pEnd.x)
 			{
-				swap(m_pStart->x, m_pEnd->x);
+				swap(m_pStart.x, m_pEnd.x);
 			}
-			if (m_pStart->y > m_pEnd->y)
+			if (m_pStart.y > m_pEnd.y)
 			{
-				swap(m_pStart->y, m_pEnd->y);
+				swap(m_pStart.y, m_pEnd.y);
 			}
 		}
 	}
 
 	// Returns Top Left Childs Region
-	QTRegion *QTRegion::GetTopLeftChild()
+	QTRegion QTRegion::GetTopLeftChild()
 	{
-		QTRegion *pRegion = NULL;
-		QTPoint *start, *end;
-
-		if (!IsPointsNull())
+		if (IsPointsInit())
 		{
-			start = new QTPoint(this->m_pStart->x, this->m_pStart->y);
-			end = new QTPoint((this->m_pStart->x + this->m_pEnd->x) / 2, (this->m_pStart->y + this->m_pEnd->y) / 2);
-			pRegion = new QTRegion(start, end);
+			QTPoint start, end;
+			start = QTPoint(this->m_pStart.x, this->m_pStart.y);
+			end = QTPoint((this->m_pStart.x + this->m_pEnd.x) / 2, (this->m_pStart.y + this->m_pEnd.y) / 2);
+			return QTRegion(start, end);
 		}
 
-		return pRegion;
+		return QTRegion();
 	}
 
 	// Returns Top Right Childs Region
-	QTRegion *QTRegion::GetTopRightChild()
+	QTRegion QTRegion::GetTopRightChild()
 	{
-		QTRegion *pRegion = NULL;
-		QTPoint *start, *end;
-
-		if (!IsPointsNull())
+		if (IsPointsInit())
 		{
-			start = new QTPoint((this->m_pStart->x + this->m_pEnd->x) / 2, this->m_pStart->y);
-			end = new QTPoint(this->m_pEnd->x, (this->m_pStart->y + this->m_pEnd->y) / 2);
-			pRegion = new QTRegion(start, end);
+			QTPoint start, end;
+			start = QTPoint((this->m_pStart.x + this->m_pEnd.x) / 2, this->m_pStart.y);
+			end = QTPoint(this->m_pEnd.x, (this->m_pStart.y + this->m_pEnd.y) / 2);
+			return QTRegion(start, end);
 		}
 
-		return pRegion;
+		return QTRegion();
 	}
 
 	// Returns Bottom Left Childs Region
-	QTRegion *QTRegion::GetBottomLeftChild()
+	QTRegion QTRegion::GetBottomLeftChild()
 	{
-		QTRegion *pRegion = NULL;
-		QTPoint *start, *end;
-
-		if (!IsPointsNull())
+		if (IsPointsInit())
 		{
-			start = new QTPoint(this->m_pStart->x, (this->m_pStart->y + this->m_pEnd->y) / 2);
-			end = new QTPoint((this->m_pStart->x + this->m_pEnd->x) / 2, this->m_pEnd->y);
-			pRegion = new QTRegion(start, end);
+			QTPoint start, end;
+			start = QTPoint(this->m_pStart.x, (this->m_pStart.y + this->m_pEnd.y) / 2);
+			end = QTPoint((this->m_pStart.x + this->m_pEnd.x) / 2, this->m_pEnd.y);
+			return QTRegion(start, end);
 		}
 
-		return pRegion;
+		return QTRegion();
 	}
 
 	// Returns Bottom Right Childs Region
-	QTRegion *QTRegion::GetBottomRightChild()
+	QTRegion QTRegion::GetBottomRightChild()
 	{
-		QTRegion *pRegion = NULL;
-		QTPoint *start, *end;
-		if (!IsPointsNull())
+		if (IsPointsInit())
 		{
-			start = new QTPoint((this->m_pStart->x + this->m_pEnd->x) / 2, (this->m_pStart->y + this->m_pEnd->y) / 2);
-			end = new QTPoint(this->m_pEnd->x, this->m_pEnd->y);
-			pRegion = new QTRegion(start, end);
+			QTPoint start, end;
+			start = QTPoint((this->m_pStart.x + this->m_pEnd.x) / 2, (this->m_pStart.y + this->m_pEnd.y) / 2);
+			end = QTPoint(this->m_pEnd.x, this->m_pEnd.y);
+			return QTRegion(start, end);
 		}
 
-		return pRegion;
+		return QTRegion();
 	}
 
 	//Checks if the region is close enough to the point p.
 	//i.e distance(region , p)< distance;
-	bool QTRegion::IsRegionClose(QTPoint * p, double distance)
+	bool QTRegion::IsRegionClose(QTPoint p, double distance)
 	{
 		bool bRet = false;
-		if (!IsPointsNull())
+		if (IsPointsInit())
 		{
 			if (!bRet)
 			{
-				bRet = ((*m_pStart - *p).Norm() < distance);
+				bRet = ((m_pStart - p).Norm() < distance);
 			}
 
 			if (!bRet)
 			{
-				bRet = ((*m_pEnd - *p).Norm() < distance);
+				bRet = ((m_pEnd - p).Norm() < distance);
 			}
 
 			if (!bRet)
 			{
-				bRet = ((QTPoint((*m_pStart).x, (*m_pEnd).y) - *p).Norm() < distance);
+				bRet = ((QTPoint((m_pStart).x, (m_pEnd).y) - p).Norm() < distance);
 			}
 
 			if (!bRet)
 			{
-				bRet = ((QTPoint((*m_pEnd).x, (*m_pStart).y) - *p).Norm() < distance);
+				bRet = ((QTPoint((m_pEnd).x, (m_pStart).y) - p).Norm() < distance);
 			}
 		}
 		return bRet;
@@ -196,8 +187,8 @@ namespace Common
 	//Returns the Size of minimum dimention
 	double QTRegion::GetMinDimention()
 	{
-		double x = m_pEnd->x - m_pStart->x;
-		double y = m_pEnd->y - m_pStart->y;
+		double x = m_pEnd.x - m_pStart.x;
+		double y = m_pEnd.y - m_pStart.y;
 		return fmin(x,y);
 	}
 

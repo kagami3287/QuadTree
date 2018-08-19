@@ -7,8 +7,8 @@ namespace Common
 
 	Quad::Quad()
 	{
-		m_Points.resize(m_sCapacity, NULL);
-		m_pRegion = NULL;
+		m_Points.resize(m_sCapacity);
+		m_pRegion = QTRegion();
 		m_nCurSize = 0;
 		m_pTopLeft = NULL;
 		m_pTopRight = NULL;
@@ -16,9 +16,9 @@ namespace Common
 		m_pBottomRight = NULL;
 	}
 
-	Quad::Quad(QTRegion *pRegion)
+	Quad::Quad(QTRegion pRegion)
 	{
-		m_Points.resize(m_sCapacity, NULL);
+		m_Points.resize(m_sCapacity);
 		m_pRegion = pRegion;
 		m_nCurSize = 0;
 		m_pTopLeft = NULL;
@@ -34,8 +34,7 @@ namespace Common
 		delete m_pBottomLeft;
 		delete m_pBottomRight;
 
-		delete m_pRegion;
-		m_Points.resize(0);
+		m_Points.clear();
 	}
 
 	void Quad::SetCapacity(int nCapacity)
@@ -58,12 +57,12 @@ namespace Common
 		return m_sAtomSize;
 	}
 
-	void Quad::SetRegion(QTRegion *pRegion)
+	void Quad::SetRegion(QTRegion pRegion)
 	{
 		this->m_pRegion = pRegion;
 	}
 
-	QTRegion *Quad::GetRegion()
+	QTRegion Quad::GetRegion()
 	{
 		return m_pRegion;
 	}
@@ -78,86 +77,45 @@ namespace Common
 		return (m_pTopLeft == NULL) || (m_pTopRight == NULL) || (m_pBottomLeft == NULL) || (m_pBottomRight == NULL);
 	}
 
-	bool Quad::IsRegionNull()
-	{
-		return (this->m_pRegion == NULL);
-	}
-
 	bool Quad::IsRegionValid()
 	{
-		if (!IsRegionNull())
-		{
-			return !this->m_pRegion->IsPointsNull();
-		}
-		return true;
+		return this->m_pRegion.IsPointsInit();
 	}
 
-	bool Quad::IsInBoundary(QTPoint *p)
+	bool Quad::IsInBoundary(QTPoint p)
 	{
-		if (!IsRegionNull())
+		if (IsRegionValid())
 		{
-			return this->m_pRegion->IsInRegion(p);
+			return this->m_pRegion.IsInRegion(p);
 		}
 		return false;
 	}
 
-	bool Quad::IsRegionClose(QTPoint * p, double distance)
+	bool Quad::IsRegionClose(QTPoint p, double distance)
 	{
-		bool bIsRegionClose = this->m_pRegion->IsRegionClose(p, distance);
+		bool bIsRegionClose = this->m_pRegion.IsRegionClose(p, distance);
 		bool bIsChildPointPresent = (this->m_nCurSize > 0);
 		return bIsRegionClose && bIsChildPointPresent;
 	}
 
-	QTRegion *Quad::GetTopLeftRegion()
+	QTRegion Quad::GetTopLeftRegion()
 	{
-		QTRegion *pRegion = NULL;
-		if (!IsRegionNull())
-		{
-			if (IsRegionValid())
-			{
-				pRegion = this->m_pRegion->GetTopLeftChild();
-			}
-		}
-		return pRegion;
+		return this->m_pRegion.GetTopLeftChild();;
 	}
 
-	QTRegion *Quad::GetTopRightRegion()
+	QTRegion Quad::GetTopRightRegion()
 	{
-		QTRegion *pRegion = NULL;
-		if (!IsRegionNull())
-		{
-			if (IsRegionValid())
-			{
-				pRegion = this->m_pRegion->GetTopRightChild();
-			}
-		}
-		return pRegion;
+		return this->m_pRegion.GetTopRightChild();
 	}
 
-	QTRegion *Quad::GetBottomLeftRegion()
+	QTRegion Quad::GetBottomLeftRegion()
 	{
-		QTRegion *pRegion = NULL;
-		if (!IsRegionNull())
-		{
-			if (IsRegionValid())
-			{
-				pRegion = this->m_pRegion->GetBottomLeftChild();
-			}
-		}
-		return pRegion;
+		return this->m_pRegion.GetBottomLeftChild();
 	}
 
-	QTRegion *Quad::GetBottomRightRegion()
+	QTRegion Quad::GetBottomRightRegion()
 	{
-		QTRegion *pRegion = NULL;
-		if (!IsRegionNull())
-		{
-			if (IsRegionValid())
-			{
-				pRegion = this->m_pRegion->GetBottomRightChild();
-			}
-		}
-		return pRegion;
+		return this->m_pRegion.GetBottomRightChild();
 	}
 
 	Quad * Quad::GetTopLeftChild()
@@ -182,28 +140,25 @@ namespace Common
 
 	bool Quad::CreateChildren()
 	{
-		if (!IsRegionNull())
+		if (IsRegionValid())
 		{
-			if (IsRegionValid())
-			{
-				double minDim = m_pRegion->GetMinDimention();
+			double minDim = m_pRegion.GetMinDimention();
 
-				if ((minDim/2) > m_sAtomSize)
-				{
-					this->m_pTopLeft = new Quad(this->GetTopLeftRegion());
-					this->m_pTopRight = new Quad(this->GetTopRightRegion());
-					this->m_pBottomLeft = new Quad(this->GetBottomLeftRegion());
-					this->m_pBottomRight = new Quad(this->GetBottomRightRegion());
-					return true;
-				}
-				return false;
+			if ((minDim / 2) > m_sAtomSize)
+			{
+				this->m_pTopLeft = new Quad(this->GetTopLeftRegion());
+				this->m_pTopRight = new Quad(this->GetTopRightRegion());
+				this->m_pBottomLeft = new Quad(this->GetBottomLeftRegion());
+				this->m_pBottomRight = new Quad(this->GetBottomRightRegion());
+				return true;
 			}
+			return false;
 		}
 
 		return false;
 	}
 
-	bool Quad::InserttoChild(QTPoint *p)
+	bool Quad::InserttoChild(QTPoint p)
 	{
 		bool bRet = false;
 		bool bIsChildNull = this->IsChildNull();
@@ -238,14 +193,10 @@ namespace Common
 	}
 
 	//Inserts points to the Quad
-	bool Quad::InsertPoint(QTPoint *p)
+	bool Quad::InsertPoint(QTPoint p)
 	{
 		bool bRet = false;
-		if (p == NULL)
-		{
-			bRet = false;
-		}
-		else if (IsRegionNull())
+		if (p == QTPoint())
 		{
 			bRet = false;
 		}
@@ -271,13 +222,13 @@ namespace Common
 	}
 
 	//Search for given number of nearest points to p.
-	vector<QTPoint *> Quad::Search(QTPoint * p, int nNearestPoints)
+	vector<QTPoint> Quad::Search(QTPoint p, int nNearestPoints)
 	{
-		QTNNList * pointList = new QTNNList();
-		pointList->SetRequestSize(nNearestPoints);
+		QTNNList pointList = QTNNList();
+		pointList.SetRequestSize(nNearestPoints);
 
 		vector<Quad*> quadList;
-		double maxDist = (*m_pRegion->GetRegionStart() - *m_pRegion->GetRegionEnd()).Norm();
+		double maxDist = (m_pRegion.GetRegionStart() - m_pRegion.GetRegionEnd()).Norm();
 		quadList.push_back(this);
 
 		while (!quadList.empty())
@@ -286,40 +237,40 @@ namespace Common
 			PopulateValidChildren(p, quadList, maxDist);
 		}
 
-		vector<QTPoint *> list;
-		pointList->DeepCopy(list);
+		vector<QTPoint> list;
+		pointList.DeepCopy(list);
 
 		for (int i = 0; i < list.size(); ++i)
 		{
-			QTPoint curPoint = (*(list[i]) + *p);
+			QTPoint curPoint = ((list[i]) + p);
 
-			list[i]->x = curPoint.x;
-			list[i]->y = curPoint.y;
+			list[i].x = curPoint.x;
+			list[i].y = curPoint.y;
 		}
 
 		return list;
 	}
 
-	void Quad::ProcessCurrentList(QTPoint * p,QTNNList *& pointList, vector<Quad*>& quadList, double & max)
+	void Quad::ProcessCurrentList(QTPoint p, QTNNList & pointList, vector<Quad*>& quadList, double & max)
 	{
 		for (auto itQuad = quadList.begin(); itQuad < quadList.end(); ++itQuad)
 		{
-			vector<QTPoint *> curPoints = (*itQuad)->m_Points;
+			vector<QTPoint> curPoints = (*itQuad)->m_Points;
 
 			for (auto itPoint = curPoints.begin(); itPoint < curPoints.begin() + (*itQuad)->GetCurSize(); ++itPoint)
 			{
-				QTPoint * curP = *itPoint;
-				
-				if ((&(*p - *curP))->Norm() < max)
+				QTPoint curP = *itPoint;
+
+				if ((p - curP).Norm() < max)
 				{
-					pointList->Push(&(*p - *curP));
-					max = ((QTPoint*)pointList->top())->Norm();
+					pointList.Push(p - curP);
+					max = ((QTPoint)pointList.top()).Norm();
 				}
 			}
 		}
 	}
 
-	void Quad::PopulateValidChildren(QTPoint * p, vector<Quad*>& quadList, double & max)
+	void Quad::PopulateValidChildren(QTPoint p, vector<Quad*>& quadList, double & max)
 	{
 		vector<Quad *> quadListChild;
 

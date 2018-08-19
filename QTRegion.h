@@ -15,30 +15,30 @@ namespace Common
 	class QTRegion
 	{
 	private:
-		QTPoint * m_pStart;
-		QTPoint * m_pEnd;
+		QTPoint m_pStart;
+		QTPoint m_pEnd;
 
 	public:
 		QTRegion();
-		QTRegion(QTPoint * start, QTPoint * end);
+		QTRegion(QTPoint start, QTPoint end);
 		~QTRegion();
 
 	public:
-		QTPoint * GetRegionStart();
-		QTPoint * GetRegionEnd();
-		void SetRegionStart(QTPoint * p);
-		void SetRegionEnd(QTPoint * p);
-		bool IsPointsNull();
-		bool IsInRegion(QTPoint * p);
-		QTRegion * GetTopLeftChild();
-		QTRegion * GetTopRightChild();
-		QTRegion * GetBottomLeftChild();
-		QTRegion * GetBottomRightChild();
-		bool IsRegionClose(QTPoint * p, double distance);
+		QTPoint GetRegionStart();
+		QTPoint GetRegionEnd();
+		void SetRegionStart(QTPoint p);
+		void SetRegionEnd(QTPoint p);
+		bool IsPointsInit();
+		bool IsInRegion(QTPoint p);
+		QTRegion GetTopLeftChild();
+		QTRegion GetTopRightChild();
+		QTRegion GetBottomLeftChild();
+		QTRegion GetBottomRightChild();
+		bool IsRegionClose(QTPoint p, double distance);
 		double GetMinDimention();
 	private:
-		bool IsStartNull();
-		bool IsEndNull();
+		bool IsStartInit();
+		bool IsEndInit();
 		void CreateValidRegion();
 	};
 } // namespace Common
