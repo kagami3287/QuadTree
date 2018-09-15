@@ -24,7 +24,7 @@ int main()
 	double y = rand() % 1000;
 
 	QTPoint pPoint = QTPoint(x, y);
-	vector<QTPoint> nearestList = pQuad->Search(pPoint, 10);
+	std::vector<QTPoint> nearestList = pQuad->Search(pPoint, 10);
 
 	delete pQuad;
 

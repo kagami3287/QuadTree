@@ -121,7 +121,6 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common.h" />
     <ClInclude Include="QTPoint.h" />
     <ClInclude Include="QTRegion.h" />
     <ClInclude Include="Quad.h" />

@@ -2,68 +2,86 @@
 
 namespace Common
 {
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Class Constructor. Instantiates the region to (negative infinity,negative infinity) or 
+	//							simply put invalid region.
 	QTRegion::QTRegion()
 	{
 		this->m_pStart = QTPoint(-DBL_MAX, -DBL_MAX);
 		this->m_pEnd = QTPoint(-DBL_MAX, -DBL_MAX);
 	}
 
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Class Constructor. Instantiates the object as per inputs. This function facilitates the user 
+	//							to give inputs in any order. combinations like cotr(end,start) , ctor((start.x,end.y),(end.x,start.y))
+	//							are also valid inputs and the correct results, i.e results same as that of ctor(start,end). So, the user
+	//							need not order the points in his code.
+	//							need not sort the inputs before sending.
+	//@Input1				:	start point (QTPoint).
+	//@Input2				:	end point (QTPoint).
 	QTRegion::QTRegion(QTPoint start, QTPoint end)
 	{
 		this->m_pStart = start;
 		this->m_pEnd = end;
+		CreateValidRegion();
 	}
 
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Class Destructor.
 	QTRegion::~QTRegion()
 	{
 	}
 
-	//Returns the Start point of the region.
-	QTPoint QTRegion::GetRegionStart()
-	{
-		return this->m_pStart;
-	}
-
-	//Returns the End point of the region.
-	QTPoint QTRegion::GetRegionEnd()
-	{
-		return this->m_pEnd;
-	}
-
-	//Set the Start of the region.
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to set the Start Point of the region. It is valid if the user gives 'end' as input, given
+	//							the input to SetRegionEnd() method is 'start'.
+	//@Input1				:	start (QTPoint).
+	//@Return				:	void.
 	void QTRegion::SetRegionStart(QTPoint p)
 	{
 		this->m_pStart = p;
 		CreateValidRegion();
 	}
 
-	//Set the End of the region.
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to set the End Point of the region. It is valid if the user gives 'start' as input, given
+	//							the input to SetRegionStart() method is 'end'.
+	//@Input1				:	start (QTPoint).
+	//@Return				:	void.
 	void QTRegion::SetRegionEnd(QTPoint p)
 	{
 		this->m_pEnd = p;
 		CreateValidRegion();
 	}
 
-	//Checks if the Starting point is initialized.
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to check if the Start point is initialized.
+	//@Return				:	bool.
 	bool QTRegion::IsStartInit()
 	{
 		return !(this->m_pStart == QTPoint(-DBL_MAX, -DBL_MAX));
 	}
 
-	//Checks if the Ending point is initialized.
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to check if the End point is initialized.
+	//@Return				:	bool.
 	bool QTRegion::IsEndInit()
 	{
 		return !(this->m_pEnd == QTPoint(-DBL_MAX, -DBL_MAX));
 	}
 
-	//Checks if any point not initialized (Start | End).
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to check if the End and Start points are initialized.
+	//@Return				:	bool.
 	bool QTRegion::IsPointsInit()
 	{
 		return (IsStartInit() && IsEndInit());
 	}
 
-	//Checks if a point is in this region
-	//the area that is considered inside the region is [Start, End)
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to check if a point is in this region. The inside part of the region is [start,end)
+	//@Input				:	query point (QTPoint)
+	//@Return				:	bool.
 	bool QTRegion::IsInRegion(QTPoint p)
 	{
 		bool bRet;
@@ -74,31 +92,33 @@ namespace Common
 		}
 		else
 		{
-			bool bXin = (this->m_pStart.x <= p.x) && (this->m_pEnd.x > p.x);
-			bool bYin = (this->m_pStart.y <= p.y) && (this->m_pEnd.y > p.y);
-
-			bRet = (bXin && bYin);
+			bRet = (m_pStart <= p) && (p < m_pEnd);
 		}
 		return bRet;
 	}
 
-	//Creates a valid region by oredering the x,y coordinates
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to Create a valid region by oredering the x,y coordinates of m_pStart, m_pEnd.
+	//@Return				:	void.
 	void QTRegion::CreateValidRegion()
 	{
 		if (IsPointsInit())
 		{
 			if (m_pStart.x > m_pEnd.x)
 			{
-				swap(m_pStart.x, m_pEnd.x);
+				std::swap(m_pStart.x, m_pEnd.x);
 			}
 			if (m_pStart.y > m_pEnd.y)
 			{
-				swap(m_pStart.y, m_pEnd.y);
+				std::swap(m_pStart.y, m_pEnd.y);
 			}
 		}
 	}
 
-	// Returns Top Left Childs Region
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to Create top left child. This method will split the rectangle region into 4 symmetric about 
+	//							the center Quardrent and returns the top left Quardrent.
+	//@Return				:	QTRegion.
 	QTRegion QTRegion::GetTopLeftChild()
 	{
 		if (IsPointsInit())
@@ -112,7 +132,10 @@ namespace Common
 		return QTRegion();
 	}
 
-	// Returns Top Right Childs Region
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to Create top right child. This method will split the rectangle region into 4 symmetric about 
+	//							the center Quardrent and returns the top right Quardrent.
+	//@Return				:	QTRegion.
 	QTRegion QTRegion::GetTopRightChild()
 	{
 		if (IsPointsInit())
@@ -126,7 +149,10 @@ namespace Common
 		return QTRegion();
 	}
 
-	// Returns Bottom Left Childs Region
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to Create bottom left child. This method will split the rectangle region into 4 symmetric about 
+	//							the center Quardrent and returns the bottom left Quardrent.
+	//@Return				:	QTRegion.
 	QTRegion QTRegion::GetBottomLeftChild()
 	{
 		if (IsPointsInit())
@@ -140,7 +166,10 @@ namespace Common
 		return QTRegion();
 	}
 
-	// Returns Bottom Right Childs Region
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to Create bottom right child. This method will split the rectangle region into 4 symmetric about 
+	//							the center Quardrent and returns the bottom right Quardrent.
+	//@Return				:	QTRegion.
 	QTRegion QTRegion::GetBottomRightChild()
 	{
 		if (IsPointsInit())
@@ -154,13 +183,20 @@ namespace Common
 		return QTRegion();
 	}
 
-	//Checks if the region is close enough to the point p.
-	//i.e distance(region , p)< distance;
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to Checks if the region is close enough to the point p. The "close enough" is determined by the user 
+	//							by a input parameter (distance).
+	//@Input1				:	query point (QTPoint)
+	//@Input2				:	distance (double)
+	//@Return				:	bool.
 	bool QTRegion::IsRegionClose(QTPoint p, double distance)
 	{
 		bool bRet = false;
 		if (IsPointsInit())
 		{
+			// Check if any of the four corners are closer to 
+			// the point p ((corner-p).Norm < distance ). If
+			// such point exists return True, else false.
 			if (!bRet)
 			{
 				bRet = ((m_pStart - p).Norm() < distance);
@@ -184,12 +220,22 @@ namespace Common
 		return bRet;
 	}
 
-	//Returns the Size of minimum dimention
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to get the size of minimum dimention. return min(width,height).
+	//@Return				:	double.
 	double QTRegion::GetMinDimention()
 	{
 		double x = m_pEnd.x - m_pStart.x;
 		double y = m_pEnd.y - m_pStart.y;
 		return fmin(x,y);
+	}
+
+	//@Author				:	Ravi Teja Narra (kagami3287).
+	//@Description			:	Method to get the length of regions diagonal.
+	//@Return				:	double.
+	double QTRegion::GetDiagonalLength()
+	{
+		return (m_pStart - m_pEnd).Norm();
 	}
 
 } // namespace Common

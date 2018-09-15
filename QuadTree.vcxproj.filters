@@ -38,9 +38,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="QTPoint.h">
       <Filter>DS</Filter>
     </ClInclude>
